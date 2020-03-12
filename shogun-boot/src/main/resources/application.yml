@@ -10,6 +10,10 @@ spring:
     url: jdbc:postgresql://localhost:5555/shogun?currentSchema=shogun
   flyway:
     schemas: shogun, public
+    enabled: false
+  jpa:
+    hibernate:
+      ddl-auto: create
   mail:
     host: mail.terrestris.de
     port: 587
@@ -34,3 +38,19 @@ server:
 support:
   email: noreply@terrestris.de
 
+keycloak:
+  auth-server-url: http://localhost:8000/auth
+  realm: SpringBootKeycloak
+  resource: shogun-app
+  public-client: true
+  ssl-required: external
+  principal-attribute: preferred_username
+
+jpa:
+  hibernate:
+    jdbc:
+      lob:
+        non_contextual_creation: true
+    ddl-auto: sdfdsf
+flyway:
+  enabled: false

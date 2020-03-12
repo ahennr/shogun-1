@@ -19,9 +19,9 @@ spring:
       jdbc:
         lob:
           non_contextual_creation: true
-      ddl-auto: none
+      ddl-auto: create
   flyway:
-    enabled: true
+    enabled: false
     baselineOnMigrate: true
     locations: classpath:db/migration
   datasource:
