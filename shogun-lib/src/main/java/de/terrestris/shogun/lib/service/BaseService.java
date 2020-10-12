@@ -15,7 +15,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.history.Revision;
 import org.springframework.data.history.Revisions;
@@ -24,18 +23,13 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public abstract class BaseService<T extends BaseCrudRepository<S, Long> & JpaSpecificationExecutor<S>, S extends BaseEntity> {
 
@@ -63,21 +57,6 @@ public abstract class BaseService<T extends BaseCrudRepository<S, Long> & JpaSpe
     @Transactional(readOnly = true)
     public List<S> findAll() {
         return (List<S>) repository.findAll();
-    }
-
-    // @PostFilter("hasRole('ROLE_ADMIN') or hasPermission(filterObject, 'READ')")
-//    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @Transactional(readOnly = true)
-    public Page<S> findAllWithWorkaround(Pageable pageable) {
-        Page<S> pageResult = (Page<S>) repository.findAll(pageable);
-        if (securityContextUtil.hasRole("ROLE_ADMIN")) {
-           return pageResult;
-        }
-        SecurityContext context = SecurityContextHolder.getContext();
-        Authentication authentication = context.getAuthentication();
-        List<S> foundResults = new ArrayList<>();
-        List<S> filteredResults = fetchUntilPageSizeIsReached(pageResult.getContent(), foundResults, pageResult.getTotalElements(), pageable, authentication);
-        return new PageImpl<>(filteredResults, pageable, filteredResults.size());
     }
 
     // security check is done on repository
@@ -173,30 +152,5 @@ public abstract class BaseService<T extends BaseCrudRepository<S, Long> & JpaSpe
         groupInstancePermissionService.deleteAllForEntity(entity);
 
         repository.delete(entity);
-    }
-
-    // currently not needed
-    public List<S> fetchUntilPageSizeIsReached(List<S> pageResult, List<S> filteredResults, long totalResults, Pageable pageable, Authentication auth) {
-        if (pageable.getOffset() >= totalResults) {
-            LOG.info("Last page {} reached. Returning {} filtered results, of {} total", pageable.getPageNumber(), pageResult.size(), totalResults);
-            return filteredResults;
-        }
-
-        LOG.info("Filtering {} new elements", pageResult.size());
-        List<S> filteredPageResult = pageResult.stream()
-            .filter(pr -> basePermissionEvaluator.hasPermission(auth, pr, "READ"))
-            .collect(Collectors.toList());
-
-        if (filteredPageResult.size() == pageResult.size()) {
-            // page filled, return results
-            return pageResult;
-        } else {
-            // fetch more results to fill page
-            Pageable nextPage = pageable.next();
-            List<S> nextPageResult = repository.findAll(nextPage).getContent();
-            filteredResults.addAll(filteredPageResult);
-            LOG.info("Not enough results to fill page, checking for more results in next page {}", nextPage.getPageNumber());
-            return fetchUntilPageSizeIsReached(nextPageResult, filteredResults, totalResults, nextPage, auth);
-        }
     }
 }
