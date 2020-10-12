@@ -38,10 +38,9 @@ public abstract class BaseController<T extends BaseService<?, S>, S extends Base
         LOG.trace("Requested to return all entities of type {}", getGenericClassName());
 
         try {
-             Page<S> persistedEntities = service.findAll(pageable);
-
-             LOG.trace("Successfully got all entities of type {} (count: {})",
-                getGenericClassName(), persistedEntities.getTotalElements());
+            Page<S> persistedEntities = service.findAll(pageable);
+            LOG.trace("Successfully got all entities of type {} (count: {})",
+            getGenericClassName(), persistedEntities.getTotalElements());
 
             return persistedEntities;
         } catch (AccessDeniedException ade) {
