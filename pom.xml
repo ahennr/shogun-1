@@ -10,7 +10,7 @@
 
   <groupId>de.terrestris</groupId>
   <artifactId>shogun</artifactId>
-  <version>7.0.1-SNAPSHOT</version>
+  <version>8.0.0-SNAPSHOT</version>
   <name>SHOGun</name>
   <packaging>pom</packaging>
 
@@ -87,7 +87,7 @@
     <spring-boot.version>2.4.0</spring-boot.version>
     <spring-data.version>2.4.1</spring-data.version>
 
-    <keycloak.version>9.0.0</keycloak.version>
+    <keycloak.version>12.0.4</keycloak.version>
 
     <!-- Database -->
     <hibernate.version>5.4.29.Final</hibernate.version>
@@ -99,7 +99,7 @@
     <graphql-spring-boot-starter.version>5.0.2</graphql-spring-boot-starter.version>
     <graphiql-spring-boot-starter.version>5.0.2</graphiql-spring-boot-starter.version>
     <graphql-java-tools.version>5.2.4</graphql-java-tools.version>
-    <graphql-java-extended-scalars.version>15.0.0</graphql-java-extended-scalars.version>
+    <graphql-java-extended-scalars.version>16.0.0</graphql-java-extended-scalars.version>
 
     <!-- Utils -->
     <lombok.version>1.18.18</lombok.version>
